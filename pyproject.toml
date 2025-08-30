@@ -1,0 +1,18 @@
+[project]
+name = "tbt-sys"
+version = "0.1.0"
+description = "Table Tennis Tournament System"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.2",
+    "numpy>=2.3.2",
+    "pypng>=0.20220715.0",
+    "qrcode>=8.2",
+    "waitress>=3.0.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]

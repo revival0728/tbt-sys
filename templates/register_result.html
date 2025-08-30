@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>註冊結果 - {{ competiton_title }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .result-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 60px 50px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      animation: slideInScale 1s ease-out;
+    }
+    
+    .result-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes slideInScale {
+      0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .result-title {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 40px;
+      background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      animation: titleGlow 2s ease-in-out infinite alternate;
+    }
+    
+    .result-title::before {
+      content: '✅';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    .result-title.error::before {
+      content: '❌';
+      animation: shake 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+      to { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)); }
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      25% { transform: translateX(-50%) translateY(-5px) rotate(-5deg); }
+      75% { transform: translateX(-50%) translateY(-5px) rotate(5deg); }
+    }
+    
+    .result-message {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 35px 30px;
+      margin-bottom: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      animation: messageSlideIn 1s ease-out 0.3s both;
+    }
+    
+    .result-message::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes messageSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .result-message p {
+      font-size: 1.4rem;
+      line-height: 1.6;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .result-message.success {
+      border-color: rgba(46, 204, 113, 0.5);
+      box-shadow: 0 0 20px rgba(46, 204, 113, 0.2);
+    }
+    
+    .result-message.success::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 2rem;
+      animation: celebrationSpin 2s ease-in-out infinite;
+    }
+    
+    .result-message.error {
+      border-color: rgba(231, 76, 60, 0.5);
+      box-shadow: 0 0 20px rgba(231, 76, 60, 0.2);
+    }
+    
+    .result-message.error::after {
+      content: '⚠️';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 2rem;
+      animation: warningPulse 1s ease-in-out infinite;
+    }
+    
+    @keyframes celebrationSpin {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+    }
+    
+    @keyframes warningPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .back-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      text-decoration: none;
+      padding: 18px 40px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-radius: 50px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+      transition: all 0.4s ease;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: buttonSlideIn 1s ease-out 0.6s both;
+    }
+    
+    .back-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      transform: translate(-50%, -50%);
+    }
+    
+    .back-button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(52, 152, 219, 0.6);
+      background: linear-gradient(135deg, #2980b9, #3498db);
+    }
+    
+    .back-button:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .back-button::after {
+      content: '🏠';
+      margin-left: 10px;
+      transition: transform 0.3s ease;
+    }
+    
+    .back-button:hover::after {
+      transform: scale(1.2);
+    }
+    
+    @keyframes buttonSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* 慶祝粒子效果 */
+    .celebration-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: celebrationFloat 3s ease-out infinite;
+    }
+    
+    .particle:nth-child(1) { 
+      background: #f39c12; 
+      left: 10%; 
+      animation-delay: 0s; 
+    }
+    .particle:nth-child(2) { 
+      background: #e74c3c; 
+      left: 20%; 
+      animation-delay: 0.3s; 
+    }
+    .particle:nth-child(3) { 
+      background: #2ecc71; 
+      left: 30%; 
+      animation-delay: 0.6s; 
+    }
+    .particle:nth-child(4) { 
+      background: #3498db; 
+      left: 40%; 
+      animation-delay: 0.9s; 
+    }
+    .particle:nth-child(5) { 
+      background: #9b59b6; 
+      left: 50%; 
+      animation-delay: 1.2s; 
+    }
+    .particle:nth-child(6) { 
+      background: #f39c12; 
+      left: 60%; 
+      animation-delay: 1.5s; 
+    }
+    .particle:nth-child(7) { 
+      background: #e74c3c; 
+      left: 70%; 
+      animation-delay: 1.8s; 
+    }
+    .particle:nth-child(8) { 
+      background: #2ecc71; 
+      left: 80%; 
+      animation-delay: 2.1s; 
+    }
+    .particle:nth-child(9) { 
+      background: #3498db; 
+      left: 90%; 
+      animation-delay: 2.4s; 
+    }
+    
+    @keyframes celebrationFloat {
+      0% { 
+        transform: translateY(100px) scale(0) rotate(0deg); 
+        opacity: 0; 
+      }
+      10% { 
+        opacity: 1; 
+        transform: scale(1); 
+      }
+      90% { 
+        opacity: 1; 
+      }
+      100% { 
+        transform: translateY(-100px) scale(0) rotate(360deg); 
+        opacity: 0; 
+      }
+    }
+    
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .result-container {
+        padding: 40px 30px;
+        border-radius: 25px;
+      }
+      
+      .result-title {
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+      }
+      
+      .result-title::before {
+        font-size: 2.5rem;
+        top: -50px;
+      }
+      
+      .result-message {
+        padding: 25px 20px;
+        margin-bottom: 30px;
+      }
+      
+      .result-message p {
+        font-size: 1.2rem;
+      }
+      
+      .back-button {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .result-container {
+        padding: 30px 20px;
+      }
+      
+      .result-title {
+        font-size: 1.8rem;
+      }
+      
+      .result-title::before {
+        font-size: 2rem;
+        top: -40px;
+      }
+      
+      .result-message {
+        padding: 20px 15px;
+      }
+      
+      .result-message p {
+        font-size: 1.1rem;
+      }
+      
+      .back-button {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="celebration-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <div class="result-container">
+    <h1 class="result-title" id="resultTitle">註冊結果</h1>
+    <div class="result-message" id="resultMessage">
+      <p>{{ message }}</p>
+    </div>
+    <a href="/register" class="back-button">回到註冊頁面</a>
+  </div>
+  
+  <script>
+    // 根據訊息內容判斷成功或失敗狀態
+    document.addEventListener('DOMContentLoaded', function() {
+      const message = document.querySelector('#resultMessage p').textContent;
+      const messageContainer = document.getElementById('resultMessage');
+      const title = document.getElementById('resultTitle');
+      
+      // 檢查是否為成功訊息
+      if (message.includes('成功') || message.includes('歡迎') || message.includes('完成')) {
+        messageContainer.classList.add('success');
+        // 觸發慶祝動畫
+        setTimeout(() => {
+          triggerCelebration();
+        }, 1000);
+      } else if (message.includes('錯誤') || message.includes('失敗') || message.includes('已存在')) {
+        messageContainer.classList.add('error');
+        title.classList.add('error');
+      }
+    });
+    
+    // 慶祝動畫效果
+    function triggerCelebration() {
+      const particles = document.querySelectorAll('.particle');
+      particles.forEach((particle, index) => {
+        setTimeout(() => {
+          particle.style.animationPlayState = 'running';
+        }, index * 100);
+      });
+    }
+    
+    // 添加點擊波紋效果
+    document.querySelector('.back-button').addEventListener('click', function(e) {
+      const ripple = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple 0.6s ease-out;
+        pointer-events: none;
+      `;
+      
+      this.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    });
+    
+    // 添加 ripple 動畫
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        to {
+          transform: scale(2);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

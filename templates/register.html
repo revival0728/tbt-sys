@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>選手註冊 - {{ competition_title }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+    }
+    
+    .board {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100dvh;
+      width: 100dvw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .register-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 50px 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      max-width: 450px;
+      width: 100%;
+      position: relative;
+      animation: slideInScale 1s ease-out;
+    }
+    
+    .register-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes slideInScale {
+      0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .board__title {
+      font-size: 3rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
+      background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      animation: titleGlow 2s ease-in-out infinite alternate;
+    }
+    
+    .board__title::before {
+      content: '👤';
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); }
+      to { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)); }
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+    
+    .board__form {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .board__nickname {
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .board__nickname::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .board__nickname:hover::before {
+      left: 100%;
+    }
+    
+    .board__nickname:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .board__nickname span {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #f39c12;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .board__nickname span::before {
+      content: '✨';
+      margin-right: 8px;
+      animation: sparkle 2s ease-in-out infinite;
+    }
+    
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+    
+    .board__nickname input[type="text"] {
+      width: 100%;
+      padding: 18px 20px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .board__nickname input[type="text"]::placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    
+    .board__nickname input[type="text"]:focus {
+      outline: none;
+      box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.02);
+    }
+    
+    .board__nickname input[type="text"]:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-1px);
+    }
+    
+    .board__submit {
+      text-align: center;
+      margin-top: 40px;
+    }
+    
+    .board__submit input[type="submit"] {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      color: white;
+      border: none;
+      padding: 20px 50px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+      transition: all 0.4s ease;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .board__submit input[type="submit"]::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      transform: translate(-50%, -50%);
+    }
+    
+    .board__submit input[type="submit"]:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .board__submit input[type="submit"]:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(46, 204, 113, 0.6);
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+    }
+    
+    .board__submit input[type="submit"]:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    /* 表單驗證動畫 */
+    .board__nickname.error {
+      animation: shake 0.5s ease-in-out;
+      border-color: #e74c3c;
+      box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    /* 成功狀態 */
+    .board__nickname.success {
+      border-color: #2ecc71;
+      box-shadow: 0 0 15px rgba(46, 204, 113, 0.3);
+    }
+    
+    .board__nickname.success input[type="text"] {
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+    }
+    
+    /* 浮動粒子背景 */
+    .floating-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: float 10s ease-in-out infinite;
+    }
+    
+    .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+    .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+    .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+    .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+    .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+    .particle:nth-child(7) { left: 70%; animation-delay: 6s; }
+    .particle:nth-child(8) { left: 80%; animation-delay: 7s; }
+    .particle:nth-child(9) { left: 90%; animation-delay: 8s; }
+    
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; transform: scale(1); }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) scale(0); opacity: 0; }
+    }
+    
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .board {
+        padding: 15px;
+      }
+      
+      .register-container {
+        padding: 35px 25px;
+        border-radius: 25px;
+      }
+      
+      .board__title {
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+      }
+      
+      .board__title::before {
+        font-size: 2rem;
+        top: -40px;
+      }
+      
+      .board__nickname {
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+      
+      .board__nickname span {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+      }
+      
+      .board__nickname input[type="text"] {
+        padding: 15px 18px;
+        font-size: 1.1rem;
+      }
+      
+      .board__submit input[type="submit"] {
+        padding: 15px 35px;
+        font-size: 1.3rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .register-container {
+        padding: 25px 20px;
+      }
+      
+      .board__title {
+        font-size: 1.8rem;
+      }
+      
+      .board__title::before {
+        font-size: 1.5rem;
+        top: -35px;
+      }
+      
+      .board__nickname {
+        padding: 15px;
+      }
+      
+      .board__submit input[type="submit"] {
+        padding: 12px 25px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  
+  <div class="board">
+    <div class="register-container">
+      <h1 class="board__title">{{ competition_title }} 選手註冊</h1>
+      <form class="board__form" method="POST" action="/register">
+        <div class="board__nickname">
+          <span>暱稱：</span>
+          <input type="text" name="nickname" placeholder="請輸入您的暱稱" required maxlength="20" />
+        </div>
+        <div class="board__submit">
+          <input type="submit" value="🚀 註冊" />
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // 表單驗證和動畫
+    document.querySelector('.board__form').addEventListener('submit', function(e) {
+      const nicknameInput = this.querySelector('input[name="nickname"]');
+      const nicknameContainer = this.querySelector('.board__nickname');
+      
+      // 清除之前的狀態
+      nicknameContainer.classList.remove('error', 'success');
+      
+      // 驗證暱稱
+      const nickname = nicknameInput.value.trim();
+      if (!nickname) {
+        nicknameContainer.classList.add('error');
+        e.preventDefault();
+        return;
+      }
+      
+      if (nickname.length < 2) {
+        nicknameContainer.classList.add('error');
+        alert('暱稱至少需要2個字元');
+        e.preventDefault();
+        return;
+      }
+      
+      if (nickname.length > 20) {
+        nicknameContainer.classList.add('error');
+        alert('暱稱不能超過20個字元');
+        e.preventDefault();
+        return;
+      }
+      
+      // 成功狀態
+      nicknameContainer.classList.add('success');
+    });
+    
+    // 輸入時即時驗證
+    document.querySelector('input[name="nickname"]').addEventListener('input', function() {
+      const container = this.closest('.board__nickname');
+      const value = this.value.trim();
+      
+      container.classList.remove('error', 'success');
+      
+      if (value.length >= 2 && value.length <= 20) {
+        container.classList.add('success');
+      }
+    });
+    
+    // 焦點動畫
+    document.querySelector('input[name="nickname"]').addEventListener('focus', function() {
+      this.closest('.board__nickname').style.transform = 'translateY(-2px)';
+    });
+    
+    document.querySelector('input[name="nickname"]').addEventListener('blur', function() {
+      this.closest('.board__nickname').style.transform = 'translateY(0)';
+    });
+  </scrip1>
+</body>
+</html>

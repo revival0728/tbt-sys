@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>排名 - {{ competition_title }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    
+    .ranking-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      max-width: 100vw;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      position: relative;
+      animation: slideInScale 1s ease-out;
+    }
+    
+    .ranking-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 30s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes slideInScale {
+      0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .ranking-title {
+      font-size: 3rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
+      background: linear-gradient(45deg, #fff, #f39c12, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+    
+    .ranking-title::before {
+      content: '🏆';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3.5rem;
+      animation: trophyFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 10px rgba(243, 156, 18, 0.5)); }
+      to { filter: drop-shadow(0 0 30px rgba(243, 156, 18, 0.8)); }
+    }
+    
+    @keyframes trophyFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0) rotate(-5deg); }
+      50% { transform: translateX(-50%) translateY(-10px) rotate(5deg); }
+    }
+    
+    .ranking-table-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+      overflow-x: auto;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    
+    .ranking-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .ranking-table th {
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: white;
+      padding: 20px 15px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ranking-table th::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: headerShimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes headerShimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .ranking-table th:first-child {
+      border-top-left-radius: 15px;
+    }
+    
+    .ranking-table th:last-child {
+      border-top-right-radius: 15px;
+    }
+    
+    .ranking-table td {
+      padding: 18px 15px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .ranking-table tr {
+      animation: rowSlideIn 0.8s ease-out;
+      animation-fill-mode: both;
+      transition: all 0.3s ease;
+    }
+    
+    .ranking-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .ranking-table tr:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.02);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    @keyframes rowSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    /* 排名獎牌效果 */
+    .ranking-table tr:nth-child(1) .rank-cell {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #333;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+      animation: goldShine 2s ease-in-out infinite alternate;
+    }
+    
+    .ranking-table tr:nth-child(2) .rank-cell {
+      background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+      color: #333;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(192, 192, 192, 0.4);
+      animation: silverShine 2s ease-in-out infinite alternate;
+    }
+    
+    .ranking-table tr:nth-child(3) .rank-cell {
+      background: linear-gradient(135deg, #cd7f32, #d4a574);
+      color: white;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      box-shadow: 0 5px 15px rgba(205, 127, 50, 0.4);
+      animation: bronzeShine 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes goldShine {
+      from { box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
+      to { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8); }
+    }
+    
+    @keyframes silverShine {
+      from { box-shadow: 0 5px 15px rgba(192, 192, 192, 0.4); }
+      to { box-shadow: 0 8px 25px rgba(192, 192, 192, 0.8); }
+    }
+    
+    @keyframes bronzeShine {
+      from { box-shadow: 0 5px 15px rgba(205, 127, 50, 0.4); }
+      to { box-shadow: 0 8px 25px rgba(205, 127, 50, 0.8); }
+    }
+    
+    /* 選手名稱強調 */
+    .player-name {
+      font-weight: bold;
+      color: #515151;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .ranking-table tr:nth-child(1) .player-name {
+      color: #ffd700;
+      font-size: 1.2rem;
+    }
+    
+    .ranking-table tr:nth-child(2) .player-name {
+      color: #d2d1d1;
+      font-size: 1.15rem;
+    }
+    
+    .ranking-table tr:nth-child(3) .player-name {
+      color: #f2973d;
+      font-size: 1.1rem;
+    }
+    
+    /* 數據強調 */
+    .stat-positive {
+      color: #247f4b;
+      font-weight: bold;
+    }
+    
+    .stat-negative {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    /* 空狀態 */
+    .no-data {
+      text-align: center;
+      padding: 60px 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 1s ease-out;
+    }
+    
+    .no-data p {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #bdc3c7;
+    }
+    
+    .no-data::before {
+      content: '📊';
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 20px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* 響應式設計 */
+    @media (max-width: 1024px) {
+      .ranking-container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      .ranking-title {
+        font-size: 2.5rem;
+      }
+      
+      .ranking-table th,
+      .ranking-table td {
+        padding: 12px 8px;
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .ranking-container {
+        padding: 25px 15px;
+        border-radius: 20px;
+      }
+      
+      .ranking-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+      }
+      
+      .ranking-title::before {
+        font-size: 2.5rem;
+        top: -50px;
+      }
+      
+      .ranking-table-container {
+        padding: 20px 10px;
+      }
+      
+      .ranking-table th,
+      .ranking-table td {
+        padding: 10px 6px;
+        font-size: 0.9rem;
+      }
+      
+      .ranking-table tr:nth-child(2) .rank-cell,
+      .ranking-table tr:nth-child(3) .rank-cell,
+      .ranking-table tr:nth-child(4) .rank-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .ranking-title {
+        font-size: 1.6rem;
+      }
+      
+      .ranking-table {
+        font-size: 0.8rem;
+      }
+      
+      .ranking-table th,
+      .ranking-table td {
+        padding: 8px 4px;
+      }
+      
+      .ranking-table tr:nth-child(2) td:first-child::before,
+      .ranking-table tr:nth-child(3) td:first-child::before,
+      .ranking-table tr:nth-child(4) td:first-child::before {
+        font-size: 1.2rem;
+        margin-right: 4px;
+      }
+    }
+    
+    /* 動畫延遲設定 */
+    .ranking-table tr:nth-child(1) { animation-delay: 0.1s; }
+    .ranking-table tr:nth-child(2) { animation-delay: 0.2s; }
+    .ranking-table tr:nth-child(3) { animation-delay: 0.3s; }
+    .ranking-table tr:nth-child(4) { animation-delay: 0.4s; }
+    .ranking-table tr:nth-child(5) { animation-delay: 0.5s; }
+    .ranking-table tr:nth-child(6) { animation-delay: 0.6s; }
+    .ranking-table tr:nth-child(7) { animation-delay: 0.7s; }
+    .ranking-table tr:nth-child(8) { animation-delay: 0.8s; }
+    .ranking-table tr:nth-child(9) { animation-delay: 0.9s; }
+    .ranking-table tr:nth-child(10) { animation-delay: 1.1s; }
+    .ranking-table tr:nth-child(11) { animation-delay: 1.2s; }
+    .ranking-table tr:nth-child(12) { animation-delay: 1.3s; }
+    .ranking-table tr:nth-child(13) { animation-delay: 1.4s; }
+    .ranking-table tr:nth-child(14) { animation-delay: 1.5s; }
+    .ranking-table tr:nth-child(15) { animation-delay: 1.6s; }
+    .ranking-table tr:nth-child(16) { animation-delay: 1.7s; }
+  </style>
+</head>
+<body>
+  <div class="ranking-container">
+    <h1 class="ranking-title">{{ competition_title }}排名</h1>
+    {% if ranking %}
+      <div class="ranking-table-container">
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th>排名</th>
+              <th>選手名稱</th>
+              <th>勝場數</th>
+              <th>勝局數</th>
+              <th>負局數</th>
+              <th>總勝分</th>
+              <th>總負分</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for player in ranking %}
+            <tr>
+              <td>
+                {% if loop.index <= 3 %}
+                  <div class="rank-cell">{{ loop.index }}</div>
+                {% else %}
+                  {{ loop.index }}
+                {% endif %}
+              </td>
+              <td><span class="player-name">{{ player.nickname }}</span></td>
+              <td><span class="stat-positive">{{ player.tw_match }}</span></td>
+              <td><span class="stat-positive">{{ player.tw_game }}</span></td>
+              <td><span class="stat-negative">{{ player.tl_game }}</span></td>
+              <td><span class="stat-positive">{{ player.tw_point }}</span></td>
+              <td><span class="stat-negative">{{ player.tl_point }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="no-data">
+        <p>目前尚無排名資料。</p>
+        <p>開始比賽後排名將會顯示在這裡！</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <script>
+    // 添加數據動態效果
+    document.addEventListener('DOMContentLoaded', function() {
+      const rows = document.querySelectorAll('.ranking-table tbody tr');
+      
+      rows.forEach((row, index) => {
+        // 為每行添加懸停效果
+        row.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.02)';
+          this.style.zIndex = '10';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+          this.style.zIndex = '1';
+        });
+        
+        // 為前三名添加特殊效果
+        if (index < 3) {
+          row.addEventListener('click', function() {
+            this.style.animation = 'none';
+            setTimeout(() => {
+              this.style.animation = 'rowSlideIn 0.5s ease-out';
+            }, 10);
+          });
+        }
+      });
+      
+      // 添加表格滾動效果
+      const tableContainer = document.querySelector('.ranking-table-container');
+      if (tableContainer) {
+        tableContainer.addEventListener('scroll', function() {
+          const scrollPercent = this.scrollLeft / (this.scrollWidth - this.clientWidth);
+          this.style.background = `linear-gradient(90deg, 
+            rgba(255, 255, 255, ${0.1 + scrollPercent * 0.05}) 0%, 
+            rgba(255, 255, 255, ${0.15 + scrollPercent * 0.05}) 100%)`;
+        });
+      }
+    });
+    
+    // 數字動畫效果
+    function animateNumbers() {
+      const numbers = document.querySelectorAll('.stat-positive, .stat-negative');
+      numbers.forEach(num => {
+        const finalValue = parseInt(num.textContent);
+        if (finalValue > 0) {
+          let currentValue = 0;
+          const increment = Math.ceil(finalValue / 20);
+          const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+              currentValue = finalValue;
+              clearInterval(timer);
+            }
+            num.textContent = currentValue;
+          }, 50);
+        }
+      });
+    }
+    
+    // 當頁面載入完成後開始數字動畫
+    window.addEventListener('load', () => {
+      setTimeout(animateNumbers, 1000);
+    });
+  </script>
+</body>
+</html>
