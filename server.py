@@ -8,7 +8,7 @@ import typing
 import core
 import utils
 
-QR_CODE_PAGE = ['ranking', 'new_match', 'register']
+QR_CODE_PAGE = ['ranking', 'new_match', 'register', 'groups', 'schedules']
 
 app = Flask(__name__)
 
@@ -21,6 +21,20 @@ def render_template(template_name: str, **context: typing.Any):
     return flask.render_template(template_name, 
                                  competition_title=tbt_config.COMPETITION_TITLE,
                                  **context)
+
+@app.route('/schedules')
+def schedules():
+    db = get_db()
+    schedules = db.load('schedules', load_last=True)[0].get('matches', [])
+    return render_template('schedules.html', schedules=schedules)
+
+@app.route('/groups')
+def groups():
+    if tbt_config.COMPETITION_FORMAT != "group":
+        return "目前賽制不是循環賽"
+    db = get_db()
+    groups = db.load('groups', load_last=True)[0].get('groups', [])
+    return render_template('groups.html', groups=groups)
 
 @app.route('/ranking')
 def ranking():

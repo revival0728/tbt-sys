@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>賽事排程 - {{ competition_title }}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: white;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    
+    .schedules-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      max-width: 100vw;
+      overflow: hidden;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      position: relative;
+      animation: slideInScale 1s ease-out;
+    }
+    
+    .schedules-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 30s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes slideInScale {
+      0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .schedules-title {
+      font-size: 3rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 50px;
+      background: linear-gradient(45deg, #fff, #f39c12, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+    
+    .schedules-title::before {
+      content: '📅';
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 3.5rem;
+      animation: scheduleFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 10px rgba(243, 156, 18, 0.5)); }
+      to { filter: drop-shadow(0 0 30px rgba(243, 156, 18, 0.8)); }
+    }
+    
+    @keyframes scheduleFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0) rotate(-5deg); }
+      50% { transform: translateX(-50%) translateY(-10px) rotate(5deg); }
+    }
+    
+    .schedules-info {
+      text-align: center;
+      margin-bottom: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .schedules-info h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #f39c12;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .schedules-info p {
+      font-size: 1.1rem;
+      color: #bdc3c7;
+      line-height: 1.5;
+    }
+    
+    .schedules-table-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      padding: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+      overflow-x: auto;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+    
+    .schedules-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    
+    .schedules-table thead {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      position: relative;
+    }
+    
+    .schedules-table thead::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: headerShimmer 4s ease-in-out infinite;
+    }
+    
+    @keyframes headerShimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .schedules-table th {
+      padding: 25px 20px;
+      text-align: center;
+      vertical-align: middle;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .schedules-table th:first-child {
+      border-top-left-radius: 20px;
+    }
+    
+    .schedules-table th:last-child {
+      border-top-right-radius: 20px;
+    }
+    
+    .schedules-table th::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .schedules-table th:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .schedules-table tbody tr {
+      transition: all 0.3s ease;
+      animation: rowSlideIn 0.8s ease-out;
+      animation-fill-mode: both;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .schedules-table tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .schedules-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    @keyframes rowSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .schedules-table td {
+      padding: 20px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1.2rem;
+      font-weight: 500;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .player-cell {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      margin: 5px;
+      padding: 15px 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .player-cell::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .player-cell:hover::before {
+      left: 100%;
+    }
+    
+    .player-cell:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .player-name {
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .vs-indicator {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .vs-indicator::before {
+      content: 'VS';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+      animation: vsPulse 2s ease-in-out infinite;
+      z-index: 2;
+    }
+    
+    @keyframes vsPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+    
+    /* 比賽狀態指示器 */
+    .match-row {
+      position: relative;
+    }
+    
+    .match-row::before {
+      /* content: attr(data-match-number); */
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 10px rgba(243, 156, 18, 0.4);
+    }
+    
+    /* 空狀態 */
+    .no-schedules {
+      text-align: center;
+      padding: 60px 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 1s ease-out;
+    }
+    
+    .no-schedules::before {
+      content: '📋';
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 20px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    
+    .no-schedules h3 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #f39c12;
+    }
+    
+    .no-schedules p {
+      font-size: 1.2rem;
+      color: #bdc3c7;
+      line-height: 1.6;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .schedules-container {
+        padding: 30px 20px;
+        border-radius: 25px;
+      }
+      
+      .schedules-title {
+        font-size: 2.2rem;
+        margin-bottom: 35px;
+      }
+      
+      .schedules-title::before {
+        font-size: 2.5rem;
+        top: -50px;
+      }
+      
+      .schedules-table-container {
+        padding: 20px 15px;
+      }
+      
+      .schedules-table th,
+      .schedules-table td {
+        padding: 15px 10px;
+        font-size: 1rem;
+      }
+      
+      .player-cell {
+        margin: 3px;
+        padding: 12px 15px;
+      }
+      
+      .vs-indicator::before {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+      
+      .match-row::before {
+        left: -35px;
+        width: 25px;
+        height: 25px;
+        font-size: 0.8rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .schedules-container {
+        padding: 20px 15px;
+      }
+      
+      .schedules-title {
+        font-size: 1.8rem;
+      }
+      
+      .schedules-title::before {
+        font-size: 2rem;
+        top: -40px;
+      }
+      
+      .schedules-table th,
+      .schedules-table td {
+        padding: 12px 8px;
+        font-size: 0.9rem;
+      }
+      
+      .player-cell {
+        padding: 10px 12px;
+      }
+      
+      .vs-indicator::before {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+      }
+    }
+    
+    /* 動畫延遲設定 */
+    /* .schedules-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .schedules-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .schedules-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .schedules-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .schedules-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    .schedules-table tbody tr:nth-child(6) { animation-delay: 0.6s; }
+    .schedules-table tbody tr:nth-child(7) { animation-delay: 0.7s; }
+    .schedules-table tbody tr:nth-child(8) { animation-delay: 0.8s; }
+    .schedules-table tbody tr:nth-child(9) { animation-delay: 0.9s; }
+    .schedules-table tbody tr:nth-child(10) { animation-delay: 1s; } */
+  </style>
+</head>
+<body>
+  <div class="schedules-container">
+    <h1 class="schedules-title">{{ competition_title }}賽事排程</h1>
+    
+    {% if schedules %}
+      <div class="schedules-info">
+        <h3>📊 排程概況</h3>
+        <p>共有 <strong>{{ schedules|length }}</strong> 場比賽待進行</p>
+      </div>
+      
+      <div class="schedules-table-container">
+        <table class="schedules-table">
+          <thead>
+            <tr>
+              <th>🏓 選手A</th>
+              <th>🆚 對戰</th>
+              <th>🏓 選手B</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for match in schedules %}
+            <tr class="match-row" data-match-number="{{ loop.index }}">
+              <td>
+                <div class="player-cell">
+                  <span class="player-name">{{ match[0] }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="vs-indicator"></div>
+              </td>
+              <td>
+                <div class="player-cell">
+                  <span class="player-name">{{ match[1] }}</span>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="no-schedules">
+        <h3>目前沒有待進行的比賽</h3>
+        <p>所有比賽都已完成，或者尚未開始排程。<br>請檢查比賽狀態或聯絡管理員。</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <script>
+    // 添加互動效果
+    document.addEventListener('DOMContentLoaded', function() {
+      const playerCells = document.querySelectorAll('.player-cell');
+      const matchRows = document.querySelectorAll('.match-row');
+      
+      // 選手卡片點擊效果
+      playerCells.forEach(cell => {
+        cell.addEventListener('click', function() {
+          // 添加點擊動畫
+          this.style.animation = 'none';
+          setTimeout(() => {
+            this.style.animation = 'playerHighlight 0.6s ease-out';
+          }, 10);
+          
+          // 高亮顯示
+          this.classList.add('highlighted');
+          setTimeout(() => {
+            this.classList.remove('highlighted');
+          }, 2000);
+        });
+        
+        // 雙擊複製選手名稱
+        cell.addEventListener('dblclick', function() {
+          const playerName = this.querySelector('.player-name').textContent;
+          navigator.clipboard.writeText(playerName).then(() => {
+            // 顯示複製成功提示
+            this.style.background = 'rgba(46, 204, 113, 0.3)';
+            setTimeout(() => {
+              this.style.background = 'rgba(255, 255, 255, 0.1)';
+            }, 1000);
+          });
+        });
+      });
+      
+      // 比賽行懸停效果
+      matchRows.forEach((row, index) => {
+        row.addEventListener('mouseenter', function() {
+          // 高亮整行
+          this.style.background = 'rgba(255, 255, 255, 0.08)';
+          
+          // 讓 VS 指示器更加突出
+          const vsIndicator = this.querySelector('.vs-indicator');
+          if (vsIndicator) {
+            vsIndicator.style.transform = 'scale(1.1)';
+          }
+        });
+        
+        row.addEventListener('mouseleave', function() {
+          this.style.background = index % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.05)';
+          const vsIndicator = this.querySelector('.vs-indicator');
+          if (vsIndicator) {
+            vsIndicator.style.transform = 'scale(1)';
+          }
+        });
+        
+        // 點擊行的特殊效果
+        row.addEventListener('click', function() {
+          // 添加點擊波紋效果
+          const ripple = document.createElement('div');
+          ripple.style.cssText = `
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleEffect 0.8s ease-out;
+            pointer-events: none;
+          `;
+          
+          this.style.position = 'relative';
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 800);
+        });
+      });
+      
+      // 表格滾動效果
+      const tableContainer = document.querySelector('.schedules-table-container');
+      if (tableContainer) {
+        tableContainer.addEventListener('scroll', function() {
+          const scrollPercent = this.scrollTop / (this.scrollHeight - this.clientHeight);
+          this.style.background = `linear-gradient(180deg, 
+            rgba(255, 255, 255, ${0.1 + scrollPercent * 0.05}) 0%, 
+            rgba(255, 255, 255, ${0.15 + scrollPercent * 0.05}) 100%)`;
+        });
+      }
+    });
+    
+    // 添加自定義動畫樣式
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes playerHighlight {
+        0% { background: rgba(255, 255, 255, 0.1); transform: scale(1); }
+        50% { background: rgba(243, 156, 18, 0.4); transform: scale(1.05); }
+        100% { background: rgba(255, 255, 255, 0.1); transform: scale(1); }
+      }
+      
+      @keyframes rippleEffect {
+        to {
+          transform: translate(-50%, -50%) scale(20);
+          opacity: 0;
+        }
+      }
+      
+      .highlighted {
+        background: rgba(243, 156, 18, 0.3) !important;
+        border-color: rgba(243, 156, 18, 0.6) !important;
+        box-shadow: 0 0 20px rgba(243, 156, 18, 0.4) !important;
+      }
+      
+      .vs-indicator {
+        transition: transform 0.3s ease;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

@@ -91,6 +91,8 @@ def main():
         server_process = mtpr.Process(target=start_server)
         server_process.start()
         print(f"Server running at {HOST_FULL_IP}")
+        print("正在產生網頁 QR Code...")
+        make_webpage_qrcode()
 
         def start_new_competition():
             print("請確認比賽規則無誤，輸入 'confirm' 確認")
@@ -105,8 +107,6 @@ def main():
             expect_input("> ", "confirm")
             print("比賽規則確認無誤，正在初始化比賽資料...")
             init_competition()
-            print("正在產生網頁 QR Code...")
-            make_webpage_qrcode()
             print("比賽開始！")
 
         def quit_competition():

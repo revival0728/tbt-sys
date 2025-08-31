@@ -5,7 +5,7 @@ GAMES_PER_MATH = 3
 WINNING_SCORE = 11
 
 # "group" or "knockout"
-COMPETITION_FORMAT = "knockout"
+COMPETITION_FORMAT = "group"
 
 # Only used when COMPETITION_FORMAT is "group"
 GROUP_COUNT = 2
