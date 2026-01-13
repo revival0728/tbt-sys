@@ -15,4 +15,4 @@ GROUP_COUNT = 2
 KNOCKOUT_SEEDING = "random" 
 
 # If None, default to 8080
-SERVER_PORT = None
+SERVER_PORT = 5001

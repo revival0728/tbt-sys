@@ -8,6 +8,10 @@ import typing
 import core
 import utils
 
+#FIXME: game_scoring.html 在手機上面會超出螢幕
+#FIXME: game_scoring.html 局數偶數時，發球顯示錯誤。 (應該是 JS 的問題)
+#TODO: set knockout to imcomplete
+
 QR_CODE_PAGE = ['ranking', 'new_match', 'register', 'groups', 'schedules']
 
 app = Flask(__name__)
@@ -59,9 +63,9 @@ def ranking():
         players = db.load('players')
         matches = db.load('matches')
         games = db.load('games')
-        groups = db.load('groups', load_last=True)[0].get('groups', {})
         player_data = utils.compile_player_data(players, matches, games)
         if tbt_config.COMPETITION_FORMAT == "group":
+            groups = db.load('groups', load_last=True)[0].get('groups', {})
             ranking = core.rank_by_group(player_data, groups)[1]
         if tbt_config.COMPETITION_FORMAT == "knockout":
             kntree = db.load('kntree', load_last=True)[0]
@@ -72,13 +76,13 @@ def ranking():
             pid = player_data.nickname_id[r]
             compiled_ranking.append({
                 'nickname': r,
-                'tw_match': player_data.tw_match[pid],
-                'tw_game': player_data.tw_game[pid],
-                'tl_game': player_data.tl_game[pid],
-                'tw_point': player_data.tw_point[pid],
-                'tl_point': player_data.tl_point[pid],
+                'tw_match': int(player_data.tw_match[pid]),
+                'tw_game': int(player_data.tw_game[pid]),
+                'tl_game': int(player_data.tl_game[pid]),
+                'tw_point': int(player_data.tw_point[pid]),
+                'tl_point': int(player_data.tl_point[pid]),
             })
-        db.save('ranking', {'ranking': ranking})
+        db.save('ranking', {'ranking': compiled_ranking})
     if competition_over:
         return render_template('ranking.html', ranking=ranking)
     return render_template('ranking.html', ranking=None)

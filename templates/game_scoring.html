@@ -43,7 +43,7 @@
     .scoreboard {
       flex: 1;
       display: flex;
-      height: calc(100vh - 140px);
+      height: calc(100dvh - 140px);
     }
     
     .player-section {
@@ -325,6 +325,10 @@
     @media (max-width: 768px) {
       .scoreboard {
         flex-direction: column;
+      }
+
+      .header {
+        display: none;
       }
       
       .player-section:first-child {
