@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ competition_title }} - 主頁</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 30px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .icon {
+            font-size: 2rem;
+        }
+
+        /* 按鈕顏色定義 */
+        .btn-groups {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-groups:hover {
+            background: linear-gradient(135deg, #fa70d4 0%, #f73655 100%);
+        }
+
+        .btn-new-match {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-new-match:hover {
+            background: linear-gradient(135deg, #3a9bdd 0%, #00d9f5 100%);
+        }
+
+        .btn-ranking {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .btn-ranking:hover {
+            background: linear-gradient(135deg, #f85787 0%, #fedd35 100%);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+
+        .btn-register:hover {
+            background: linear-gradient(135deg, #2ab8b4 0%, #2d0552 100%);
+        }
+
+        .btn-schedules {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .btn-schedules:hover {
+            background: linear-gradient(135deg, #95dcd6 0%, #fac5d8 100%);
+            color: #333;
+        }
+
+        /* 響應式設計 - 平板 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .menu-grid {
+                gap: 12px;
+            }
+
+            .menu-btn {
+                padding: 25px 15px;
+                font-size: 0.95rem;
+            }
+
+            .icon {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* 響應式設計 - 手機 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .menu-btn {
+                padding: 20px 15px;
+                font-size: 1rem;
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 20px;
+            }
+
+            .icon {
+                font-size: 1.8rem;
+                flex-shrink: 0;
+            }
+        }
+
+        /* 大屏幕優化 */
+        @media (min-width: 1024px) {
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .menu-btn {
+                padding: 35px 25px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ competition_title }}</h1>
+            <p>歡迎使用乒乓球比賽系統</p>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item">
+                <a href="/groups" class="menu-btn btn-groups">
+                    <span class="icon">👥</span>
+                    <span>分組</span>
+                </a>
+            </div>
+
+            <div class="menu-item">
+                <a href="/new_match" class="menu-btn btn-new-match">
+                    <span class="icon">🎮</span>
+                    <span>新比賽</span>
+                </a>
+            </div>
+
+            <div class="menu-item">
+                <a href="/ranking" class="menu-btn btn-ranking">
+                    <span class="icon">🏆</span>
+                    <span>排名</span>
+                </a>
+            </div>
+
+            <div class="menu-item">
+                <a href="/register" class="menu-btn btn-register">
+                    <span class="icon">📝</span>
+                    <span>報名</span>
+                </a>
+            </div>
+
+            <div class="menu-item">
+                <a href="/schedules" class="menu-btn btn-schedules">
+                    <span class="icon">📅</span>
+                    <span>賽程</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

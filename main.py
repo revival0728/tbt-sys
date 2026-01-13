@@ -16,14 +16,17 @@ def start_server():
 def make_webpage_qrcode():
     if os.path.isdir("qrcodes") is False:
         os.mkdir("qrcodes")
-    def save_qr_code(page: str):
+    def save_qr_code(page: str, fn: str | None = None):
         assert HOST_FULL_IP is not None
         url = f"{HOST_FULL_IP}{page}"
         img = qrcode.make(url, image_factory=PyPNGImage)
-        with open(os.path.join("qrcodes", f"{page}.png"), "wb") as f:
+        if fn is None:
+            fn = f"{page}.png"
+        with open(os.path.join("qrcodes", fn), "wb") as f:
             img.save(f)
     for page in server.QR_CODE_PAGE:
         save_qr_code(page)
+    save_qr_code('', 'homepage.png')
 
 def check_existing_competition():
     with server.app.app_context():

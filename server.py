@@ -233,7 +233,7 @@ def register():
 
 @app.route('/')
 def homepage():
-    return "Welcome to the tbt-sys homepage!"
+    return render_template('homepage.html')
 
 def main():
     print("Hello from tbt-sys!")
